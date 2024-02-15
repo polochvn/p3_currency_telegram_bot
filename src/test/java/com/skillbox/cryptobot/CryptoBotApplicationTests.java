@@ -12,5 +12,4 @@ class CryptoBotApplicationTests {
 		String t = "/subscribe 9999999.12";
 		System.out.println(t.replaceAll("(/subscribe|\\s)", ""));
 	}
-
 }
