@@ -13,14 +13,22 @@ binance:
   api:
     getPrice: https://api.binance.com/api/v3/avgPrice?symbol=BTCUSDT
 
-db:
-  driver:
-    name: org.postgresql.Driver
-  url: jdbc:postgresql://localhost:5432/db
-  user: root
-  password: root
-
 scheduled:
   fixed-delay:
     bitcoin-cost-tracking: 2
     notification-to-user: 10
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+
+db:
+  driver:
+    name: org.postgresql.Driver
+  url: jdbc:postgresql://localhost:5432/db
+  user: postgres
+  password: postgres
