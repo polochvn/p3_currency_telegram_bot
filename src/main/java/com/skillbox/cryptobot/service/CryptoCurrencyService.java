@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -35,28 +36,28 @@ public class CryptoCurrencyService {
 
     public void createUser(Long userId) {
         log.info("Saving the user to the database");
-        AppUser user = userRepository.findAppUserByTelegramUserId(userId);
+        AppUser user = userRepository.findAppUserByChatId(userId);
         if (user == null) {
             user = AppUser.builder()
-                    .telegramUserId(userId)
+                    .chatId(userId)
                     .bitcoinPrice(null)
                     .build();
             userRepository.save(user);
         }
     }
 
-    public void updateBitcoinPrice(Long userId, Long price) {
+    public void updateBitcoinPrice(Long userId, Double price) {
         log.info("Subscription activation");
-        AppUser user = userRepository.findAppUserByTelegramUserId(userId);
+        AppUser user = userRepository.findAppUserByChatId(userId);
         if (user != null) {
             user.setBitcoinPrice(price);
             userRepository.save(user);
         }
     }
 
-    public Long getSubscription(Long userId) {
+    public Double getSubscription(Long userId) {
         log.info("Getting an active subscription");
-        AppUser user = userRepository.findAppUserByTelegramUserId(userId);
+        AppUser user = userRepository.findAppUserByChatId(userId);
         if (user.getBitcoinPrice() == null) {
             return null;
         } else {
@@ -66,7 +67,7 @@ public class CryptoCurrencyService {
 
     public boolean deleteSubscription(Long userId) {
         log.info("Deleting a subscription");
-        AppUser user = userRepository.findAppUserByTelegramUserId(userId);
+        AppUser user = userRepository.findAppUserByChatId(userId);
         if (user.getBitcoinPrice() != null) {
             user.setBitcoinPrice(null);
             userRepository.save(user);
@@ -75,7 +76,7 @@ public class CryptoCurrencyService {
         return false;
     }
 
-    @Scheduled(fixedDelay = 120_000)
+    @Scheduled(fixedDelayString = "${scheduled.fixed-delay.bitcoin-cost-tracking}", timeUnit = TimeUnit.MINUTES)
     public void bitcoinCostTracking() throws IOException {
         price.set(client.getBitcoinPrice());
     }
@@ -86,7 +87,7 @@ public class CryptoCurrencyService {
         return users
                 .stream()
                 .filter(u -> u.getBitcoinPrice() != null && price.get() != null && price.get() < u.getBitcoinPrice())
-                .map(AppUser::getTelegramUserId)
+                .map(AppUser::getChatId)
                 .collect(Collectors.toList());
     }
 }

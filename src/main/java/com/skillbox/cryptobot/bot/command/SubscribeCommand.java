@@ -37,9 +37,9 @@ public class SubscribeCommand implements IBotCommand {
 
         if (arguments.length != 0) {
             answer.setText("Новая подписка создана на стоимость " + arguments[0] + " USD");
-            service.updateBitcoinPrice(message.getChatId(), Long.valueOf(arguments[0]));
+            service.updateBitcoinPrice(message.getChatId(), Double.valueOf(arguments[0].replace(",", ".")));
         } else {
-            answer.setText("Введите /subscribe и желаемую стоимость биткоина!");
+            answer.setText("Введите сумму");
         }
         try {
             absSender.execute(answer);

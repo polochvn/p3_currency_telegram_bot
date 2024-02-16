@@ -13,6 +13,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static com.skillbox.cryptobot.service.command.ServiceCommands.*;
 
 
 @Service
@@ -42,9 +45,33 @@ public class CryptoBot extends TelegramLongPollingCommandBot {
 
     @Override
     public void processNonCommandUpdate(Update update) {
+        long chatId = update.getMessage().getChatId();
+        String text = update.getMessage().getText();
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        if (SUBSCRIBE.equals(text)) {
+            message.setText("Введите сумму");
+            sendMessage(message);
+        } else if (text.matches("\\d*[,.]?\\d*")) {
+            message.setText("Новая подписка создана на стоимость " + text + " USD");
+            service.updateBitcoinPrice(chatId, Double.valueOf(text.replace(",", ".")));
+            sendMessage(message);
+        } else if (!(START.equals(text) || GET_SUBSCRIPTION.equals(text) || UNSUBSCRIBE.equals(text) || GET_PRICE.equals(text))) {
+            message.setText("Unknown command");
+            sendMessage(message);
+        }
     }
 
-    @Scheduled(fixedDelay = 600_000)
+    public void sendMessage(SendMessage message) {
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Scheduled(fixedDelayString = "${scheduled.fixed-delay.notification-to-user}", timeUnit = TimeUnit.MINUTES)
     public void sendAds() {
         service.getUserChatIds().forEach(id -> {
             SendMessage message;
@@ -54,7 +81,7 @@ public class CryptoBot extends TelegramLongPollingCommandBot {
                 message.setText("Пора покупать, стоимость биткоина " + service.getBitcoinPrice() + " USD");
                 execute(message);
             } catch (TelegramApiException | IOException ex) {
-                throw new RuntimeException(ex);
+                ex.printStackTrace();
             }
         });
     }

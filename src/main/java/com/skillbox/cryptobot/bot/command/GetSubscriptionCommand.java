@@ -32,7 +32,7 @@ public class GetSubscriptionCommand implements IBotCommand {
         SendMessage answer = new SendMessage();
         answer.setChatId(message.getChatId());
 
-        Long price = service.getSubscription(message.getChatId());
+        Double price = service.getSubscription(message.getChatId());
         if (price == null) {
             answer.setText("Активные подписки отсутствуют");
         } else {

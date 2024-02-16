@@ -26,3 +26,8 @@ telegram:
 binance:
   api:
     getPrice: https://api.binance.com/api/v3/avgPrice?symbol=BTCUSDT
+
+scheduled:
+  fixed-delay:
+    bitcoin-cost-tracking: 2
+    notification-to-user: 10

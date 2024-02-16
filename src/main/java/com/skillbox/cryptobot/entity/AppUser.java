@@ -17,9 +17,9 @@ public class AppUser {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "telegram_user_id")
-    private Long telegramUserId;
+    @Column(name = "chat_id")
+    private Long chatId;
 
     @Column(name = "bitcoin_price")
-    private Long bitcoinPrice;
+    private Double bitcoinPrice;
 }
